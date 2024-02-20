@@ -13,7 +13,7 @@ export class Slug {
       .replace(/\s+/g, '-')
       .replace(/[^\w]+/g, '-')
       .replace(/_/g, '-')
-      .replace(/--/g, '-')
+      .replace(/--+/g, '-')
       .replace(/-$/g, '')
 
     return new Slug(slugText)
