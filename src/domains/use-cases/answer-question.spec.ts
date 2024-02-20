@@ -12,5 +12,4 @@ test('create a answer', () => {
 
   expect(answer.content).toEqual('nova resposta')
   expect(answer.id).toBeDefined()
-
 })
