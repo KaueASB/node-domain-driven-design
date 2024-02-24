@@ -4,6 +4,7 @@ import { makeAnswer } from 'test/factories/make-answer'
 import { InMemoryQuestionsRepository } from 'test/repositories/in-memory-questions-repository'
 import { makeQuestion } from 'test/factories/make-question'
 import { UniqueEntityId } from '@/core/entities/unique-entity-id'
+import { NotAllowedError } from './errors/not-allowed-error'
 
 let inMemoryAnswersRepository: InMemoryAnswersRepository
 let inMemoryQuestionsRepository: InMemoryQuestionsRepository
@@ -20,7 +21,7 @@ describe('Choose question best answer', () => {
     )
   })
 
-  it('should be able to choose question best answer', async () => {
+  it('should be able to choose the question best answer', async () => {
     const newQuestion = makeQuestion()
     const newAnswer = makeAnswer({ questionId: newQuestion.id })
 
@@ -30,12 +31,15 @@ describe('Choose question best answer', () => {
     expect(inMemoryQuestionsRepository.items).toHaveLength(1)
     expect(inMemoryAnswersRepository.items).toHaveLength(1)
 
-    const { question } = await sut.execute({
+    const result = await sut.execute({
       authorId: newQuestion.authorId.toString(),
       answerId: newAnswer.id.toString(),
     })
 
-    expect(question.bestAnswerId).toEqual(newAnswer.id)
+    expect(result.isRight()).toBe(true)
+    expect(result.value).toMatchObject({
+      question: { bestAnswerId: newAnswer.id },
+    })
   })
 
   it('should not be able to choose another author question best answer', async () => {
@@ -50,13 +54,15 @@ describe('Choose question best answer', () => {
     expect(inMemoryQuestionsRepository.items).toHaveLength(1)
     expect(inMemoryAnswersRepository.items).toHaveLength(1)
 
-    await expect(() =>
-      sut.execute({
-        authorId: 'another-author',
-        answerId: newAnswer.id.toString(),
-      }),
-    ).rejects.toThrowError(
-      'You can only choose best answer for your own questions.',
-    )
+    const result = await sut.execute({
+      authorId: 'another-author',
+      answerId: newAnswer.id.toString(),
+    })
+
+    expect(result.isLeft()).toBe(true)
+    expect(result.value).toBeInstanceOf(NotAllowedError)
+    expect(result.value).toMatchObject({
+      message: 'You can only choose best answer for your own questions.',
+    })
   })
 })

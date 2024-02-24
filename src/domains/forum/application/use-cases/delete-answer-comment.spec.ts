@@ -20,11 +20,12 @@ describe('Delete answer comment', () => {
 
     expect(inMemoryAnswerCommentRepository.items).toHaveLength(1)
 
-    await sut.execute({
+    const result = await sut.execute({
       authorId: newAnswerComment.authorId.toString(),
       answerCommentId: newAnswerComment.id.toString(),
     })
 
+    expect(result.isRight()).toBe(true)
     expect(inMemoryAnswerCommentRepository.items).toHaveLength(0)
   })
 
@@ -44,5 +45,8 @@ describe('Delete answer comment', () => {
 
     expect(result.isLeft()).toBe(true)
     expect(result.value).toBeInstanceOf(NotAllowedError)
+    expect(result.value).toMatchObject({
+      message: 'You are not authorized to delete this comment',
+    })
   })
 })

@@ -2,6 +2,7 @@ import { EditAnswersUseCase } from './edit-answer'
 import { InMemoryAnswersRepository } from 'test/repositories/in-memory-answers-repository'
 import { makeAnswer } from 'test/factories/make-answer'
 import { UniqueEntityId } from '@/core/entities/unique-entity-id'
+import { NotAllowedError } from './errors/not-allowed-error'
 
 let inMemoryAnswersRepository: InMemoryAnswersRepository
 let sut: EditAnswersUseCase
@@ -22,16 +23,21 @@ describe('Edit answer', () => {
 
     expect(inMemoryAnswersRepository.items).toHaveLength(1)
 
-    const { answer } = await sut.execute({
+    const result = await sut.execute({
       authorId: 'author-1',
       answerId: newAnswer.id.toValue(),
 
       content: 'content edited',
     })
 
-    expect(answer).toMatchObject({
-      content: 'content edited',
-      updatedAt: expect.any(Date),
+    expect(result.isRight()).toBe(true)
+    expect(result.value).toMatchObject({
+      answer: {
+        props: {
+          content: 'content edited',
+          updatedAt: expect.any(Date),
+        },
+      },
     })
   })
 
@@ -45,12 +51,16 @@ describe('Edit answer', () => {
 
     expect(inMemoryAnswersRepository.items).toHaveLength(1)
 
-    await expect(() =>
-      sut.execute({
-        authorId: 'another-author',
-        answerId: newAnswer.id.toValue(),
-        content: 'content edited',
-      }),
-    ).rejects.toThrowError('You can only edit your own answers.')
+    const result = await sut.execute({
+      authorId: 'another-author',
+      answerId: newAnswer.id.toValue(),
+      content: 'content edited',
+    })
+
+    expect(result.isLeft()).toBe(true)
+    expect(result.value).toBeInstanceOf(NotAllowedError)
+    expect(result.value).toMatchObject({
+      message: 'You can only edit your own answers.',
+    })
   })
 })
