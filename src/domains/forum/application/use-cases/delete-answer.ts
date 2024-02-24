@@ -1,11 +1,17 @@
+import { Either, left, right } from '@/core/either'
 import { AnswersRepository } from '../repositories/answers-repository'
+import { NotAllowedError } from './errors/not-allowed-error'
+import { ResourceNotFoundError } from './errors/resource-not-found-error'
 
 interface DeleteAnswersUseCaseRequest {
   authorId: string
   answerId: string
 }
 
-interface DeleteAnswersUseCaseResponse {}
+type DeleteAnswersUseCaseResponse = Either<
+  ResourceNotFoundError | NotAllowedError,
+  Record<string, never>
+>
 
 export class DeleteAnswersUseCase {
   constructor(private answersRepository: AnswersRepository) {}
@@ -17,15 +23,15 @@ export class DeleteAnswersUseCase {
     const answer = await this.answersRepository.findById(answerId)
 
     if (!answer) {
-      throw new Error('Answer not found.')
+      return left(new ResourceNotFoundError('Answer not found'))
     }
 
     if (authorId !== answer.authorId.toString()) {
-      throw new Error('You can only delete your own answers.')
+      return left(new NotAllowedError('You can only delete your own answers.'))
     }
 
     await this.answersRepository.delete(answer)
 
-    return {}
+    return right({})
   }
 }
