@@ -25,8 +25,6 @@ describe('Read notification', () => {
       notificationId: newNotification.id.toString(),
     })
 
-    console.log(result.value)
-
     expect(result.isRight()).toBe(true)
     expect(inMemoryNotificationsRepository.items[0].readAt).toEqual(
       expect.any(Date),
