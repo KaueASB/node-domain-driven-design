@@ -75,3 +75,42 @@ Design dirigido à domínio
       - Observa as respostas em um tópico específico.
       - Quando uma nova resposta é adicionada ao tópico, a lista é notificada.
       - A lista pode então enviar uma notificação para o usuário que está seguindo o tópico.
+
+## Subdomínios
+
+Em Domain-Driven Design (DDD), um subdomínio é uma parte autônoma de um domínio maior que possui suas próprias regras, entidades e comportamentos. No contexto de um fórum, os subdomínios podem ser usados para organizar o código e o design da aplicação de forma modular e coesa.
+
+- **Core:** O que dá dinheiro
+- **Supporting:** Dá suporte para o core funcionar
+- **Generic:** Você pode precisa, porém, não é tão importante
+
+### Exemplos de subdomínios em um fórum
+
+- **Autenticação e Autorização:**
+  - Gerenciamento de usuários, login, registro, permissões de acesso
+  - Regras de autenticação e autorização para diferentes seções do fórum
+
+- **Gerenciamento de Tópicos:**
+  - Criação, edição, exclusão de tópicos
+  - Categorização de tópicos, organização por tags
+  - Moderação de tópicos, gerenciamento de conteúdo impróprio
+
+- **Gerenciamento de Respostas:**
+  - Criação, edição, exclusão de respostas
+  - Notificações de novas respostas
+  - Moderação de respostas, gerenciamento de conteúdo impróprio
+
+- **Votação e Reputação:**
+  - Sistema de votação para tópicos e respostas
+  - Sistema de reputação para usuários
+
+- **Pesquisa e Notificações:**
+  - Mecanismo de busca para tópicos e respostas
+  - Sistema de notificações para novos tópicos, respostas e respostas
+
+### Benefícios de usar subdomínios
+
+- **Modularidade:** O código fica mais organizado e fácil de entender
+- **Coesão:** Cada subdomínio possui um foco único e bem definido
+- **Reusabilidade:** Subdomínios podem ser reutilizados em outras aplicações
+- **Manutenibilidade:** O código fica mais fácil de manter e atualizar
