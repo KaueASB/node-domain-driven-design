@@ -3,14 +3,24 @@ import { InMemoryAnswersRepository } from 'test/repositories/in-memory-answers-r
 import { makeAnswer } from 'test/factories/make-answer'
 import { UniqueEntityId } from '@/core/entities/unique-entity-id'
 import { NotAllowedError } from './errors/not-allowed-error'
+import { InMemoryAnswerAttachmentsRepository } from 'test/repositories/in-memory-answer-attachments-repository'
+import { MakeAnswerAttachment } from 'test/factories/make-answer-attachment'
 
 let inMemoryAnswersRepository: InMemoryAnswersRepository
+let inMemoryAnswerAttachmentsRepository: InMemoryAnswerAttachmentsRepository
+
 let sut: EditAnswersUseCase
 
 describe('Edit answer', () => {
   beforeEach(() => {
+    inMemoryAnswerAttachmentsRepository =
+      new InMemoryAnswerAttachmentsRepository()
+
     inMemoryAnswersRepository = new InMemoryAnswersRepository()
-    sut = new EditAnswersUseCase(inMemoryAnswersRepository)
+    sut = new EditAnswersUseCase(
+      inMemoryAnswersRepository,
+      inMemoryAnswerAttachmentsRepository,
+    )
   })
 
   it('should be able to edit a answer by id', async () => {
@@ -23,14 +33,38 @@ describe('Edit answer', () => {
 
     expect(inMemoryAnswersRepository.items).toHaveLength(1)
 
+    inMemoryAnswerAttachmentsRepository.items.push(
+      MakeAnswerAttachment({
+        answerId: newAnswer.id,
+        attachmentId: new UniqueEntityId('1'),
+      }),
+
+      MakeAnswerAttachment({
+        answerId: newAnswer.id,
+        attachmentId: new UniqueEntityId('2'),
+      }),
+    )
+
     const result = await sut.execute({
       authorId: 'author-1',
       answerId: newAnswer.id.toValue(),
-
       content: 'content edited',
+      attachmentsIds: ['1', '3'],
     })
 
     expect(result.isRight()).toBe(true)
+
+    expect(
+      inMemoryAnswersRepository.items[0].attachments.currentItems,
+    ).toHaveLength(2)
+
+    expect(inMemoryAnswersRepository.items[0].attachments.currentItems).toEqual(
+      [
+        expect.objectContaining({ attachmentId: new UniqueEntityId('1') }),
+        expect.objectContaining({ attachmentId: new UniqueEntityId('3') }),
+      ],
+    )
+
     expect(result.value).toMatchObject({
       answer: {
         props: {
@@ -55,6 +89,7 @@ describe('Edit answer', () => {
       authorId: 'another-author',
       answerId: newAnswer.id.toValue(),
       content: 'content edited',
+      attachmentsIds: [],
     })
 
     expect(result.isLeft()).toBe(true)
