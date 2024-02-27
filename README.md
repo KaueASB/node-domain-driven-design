@@ -114,3 +114,5 @@ Em Domain-Driven Design (DDD), um subdomínio é uma parte autônoma de um domí
 - **Coesão:** Cada subdomínio possui um foco único e bem definido
 - **Reusabilidade:** Subdomínios podem ser reutilizados em outras aplicações
 - **Manutenibilidade:** O código fica mais fácil de manter e atualizar
+
+<!-- TODO: add event question comment & add event answer comment -->
