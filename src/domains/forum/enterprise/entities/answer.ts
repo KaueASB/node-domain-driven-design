@@ -65,7 +65,7 @@ export class Answer extends AggregateRoot<AnswerProps> {
         ...props,
         attachments: props.attachments ?? new AnswerAttachmentList(),
 
-        createdAt: new Date(),
+        createdAt: props.createdAt ?? new Date(),
       },
       id,
     )

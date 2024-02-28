@@ -12,7 +12,7 @@ export class OnAnswerCreated implements EventHandler {
     this.setupSubscriptions()
   }
 
-  setupSubscriptions() {
+  setupSubscriptions(): void {
     DomainEvents.register(
       this.sendNewAnswerNotification.bind(this),
       AnswerCreatedEvent.name,
@@ -25,7 +25,7 @@ export class OnAnswerCreated implements EventHandler {
     )
 
     if (question) {
-      this.sendNotificationUseCase.execute({
+      await this.sendNotificationUseCase.execute({
         recipientId: question.authorId.toString(),
         title: `Nova resposta em ${question.title.substring(0, 40).concat('...')}`,
         content: answer.excerpt,
